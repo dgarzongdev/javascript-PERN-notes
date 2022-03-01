@@ -12,6 +12,7 @@ const port =  process.env.PORT;
 
 
 // Middlewares
+app.use(express.json());
 app.use(noteRoutes);
 // Request viewer
 app.use(morgan('dev'));

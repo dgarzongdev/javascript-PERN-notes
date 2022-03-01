@@ -10,12 +10,12 @@ const router = Router();
 
 router.get('/notes', getAllNotes);
 
-router.get('/note/47', getNote);
+router.get('/note/:id', getNote);
 
-router.post('/notes', createNote);
+router.post('/note', createNote);
 
-router.put('/notes',updateNote);
+router.put('/note/:id',updateNote);
 
-router.delete('/notes', deleteNote);
+router.delete('/note/:id', deleteNote);
 
 module.exports = router;
