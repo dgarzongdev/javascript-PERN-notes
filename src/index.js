@@ -1,5 +1,6 @@
 const express = require('express');
 const morgan = require('morgan');
+const cors = require('cors');
 
 // env variables required
 require('dotenv').config();
@@ -14,6 +15,12 @@ const port =  process.env.PORT;
 // Middlewares
 app.use(express.json());
 app.use(noteRoutes);
+app.use(cors());
+app.use((err, req, res, next) => {
+    return res.json({
+        message: err.message
+    })
+});  
 // Request viewer
 app.use(morgan('dev'));
 
