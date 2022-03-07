@@ -13,9 +13,9 @@ const port =  process.env.PORT;
 
 
 // Middlewares
+app.use(cors());
 app.use(express.json());
 app.use(noteRoutes);
-app.use(cors());
 app.use((err, req, res, next) => {
     return res.json({
         message: err.message

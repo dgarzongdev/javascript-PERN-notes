@@ -1,24 +1,45 @@
-import { Button, Card, CardContent, Grid, TextField, Typography } from '@mui/material';
+import { Button, Card, CardContent, CircularProgress, Grid, TextField, Typography } from '@mui/material';
 
 // React Hooks
-import {useState, useEffect} from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export default function NoteForm() {
 
     // Set states
     const [note, setNote] = useState({
         title: '',
-        description: ''
+        description: '',
     });
 
+    const [loading, setLoading] = useState(false);
+
+    const navigate = useNavigate();
     // Custom event
-    const handleSubmit = e => {
+    const handleSubmit = async (e) => {
+        // Evita refrescar la página cada vez que guarda
         e.preventDefault();
-        console.log(note);
-    }
+        // Establecer estado
+        setLoading(true);
+
+        // Especifica la dirección de envío del formulario
+        const res = await fetch('http://localhost:4000/note', {
+            method: 'POST',
+            body: JSON.stringify(note),
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
+        });
+
+        // Actualizar estado
+        setLoading(false);
+        // const data = await res.json();
+        navigate('/');
+    };
 
     const handleChange = e => {
-        setNote({...note, [e.target.name]: e.target.value});
+        setNote({ ...note, [e.target.name]: e.target.value });
     }
 
 
@@ -45,7 +66,7 @@ export default function NoteForm() {
                         Create Note
                     </Typography>
                     <CardContent>
-                        <form onSubmit={ handleSubmit }>
+                        <form onSubmit={handleSubmit}>
                             <TextField
                                 variant='filled'
                                 label='Write your title'
@@ -55,8 +76,8 @@ export default function NoteForm() {
                                 }}
                                 name='title'
                                 onChange={handleChange}
-                                inputProps={{ style: {color: "#42373B"}}}
-                                InputLabelProps={{style: {color: "#42373B"}}}
+                                inputProps={{ style: { color: "#42373B" } }}
+                                InputLabelProps={{ style: { color: "#42373B" } }}
                             />
 
                             <TextField
@@ -70,14 +91,21 @@ export default function NoteForm() {
                                 }}
                                 name='description'
                                 onChange={handleChange}
-                                inputProps={{ style: {color: "#42373B"}}}
-                                InputLabelProps={{style: {color: "#42373B"}}}
+                                inputProps={{ style: { color: "#42373B" } }}
+                                InputLabelProps={{ style: { color: "#42373B" } }}
                             />
 
                             <Button
-                                variant='contained' color='inherit' type='submit'
+                                variant='contained' color='inherit' type='submit' disabled={!note.title || !note.description}
+                                // Si se está cargando la información el botón se deshabilita
                             >
-                                Save
+                                {/* Si está cargando ejecutar la propiedad circularProgress */}
+                                {loading ? (
+                                    <CircularProgress color="secondary" size={12}/>
+                                ) : (
+                                    // En caso contrario mostar la palabra "Create"
+                                    "Create"
+                                )}
                             </Button>
                         </form>
                     </CardContent>
