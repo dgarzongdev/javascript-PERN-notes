@@ -2,7 +2,7 @@ import { Button, Card, CardContent, CircularProgress, Grid, TextField, Typograph
 
 // React Hooks
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 export default function NoteForm() {
 
@@ -12,9 +12,13 @@ export default function NoteForm() {
         description: '',
     });
 
-    const [loading, setLoading] = useState(false);
-
     const navigate = useNavigate();
+    const params = useParams();
+
+    // States
+    const [loading, setLoading] = useState(false);
+    const [editing, setEditing] = useState(false);
+
     // Custom event
     const handleSubmit = async (e) => {
         // Evita refrescar la página cada vez que guarda
@@ -22,15 +26,30 @@ export default function NoteForm() {
         // Establecer estado
         setLoading(true);
 
-        // Especifica la dirección de envío del formulario
-        const res = await fetch('http://localhost:4000/note', {
-            method: 'POST',
-            body: JSON.stringify(note),
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            }
-        });
+        if (editing) {
+            const res = await fetch(`http://localhost:4000/note/${params.id}`,{
+                method: 'PUT', 
+                body: JSON.stringify(note),
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            });
+            const data = res.json();
+            console.log(data);
+        } else {
+            // Especifica la dirección de envío del formulario
+            await fetch('http://localhost:4000/note', {
+                method: 'POST',
+                body: JSON.stringify(note),
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            });
+
+        }
+
 
         // Actualizar estado
         setLoading(false);
@@ -41,6 +60,23 @@ export default function NoteForm() {
     const handleChange = e => {
         setNote({ ...note, [e.target.name]: e.target.value });
     }
+
+    const loadNote = async (id) => {
+        const res = await fetch(`http://localhost:4000/note/${id}`);
+        const data = await res.json();
+        // Fill the form with edition data
+        setNote({ title: data.title, description: data.description });
+
+        // Edition state
+        setEditing(true);
+
+    };
+
+    useEffect(() => {
+        if (params.id) {
+            loadNote(params.id);
+        }
+    }, [params.id]);
 
 
     return (
@@ -63,7 +99,7 @@ export default function NoteForm() {
                         textAlign='center'
                         color='#42373B'
                     >
-                        Create Note
+                        {editing ? "Edit" : "Create"}
                     </Typography>
                     <CardContent>
                         <form onSubmit={handleSubmit}>
@@ -75,6 +111,7 @@ export default function NoteForm() {
                                     margin: '.5rem 0'
                                 }}
                                 name='title'
+                                value={note.title}
                                 onChange={handleChange}
                                 inputProps={{ style: { color: "#42373B" } }}
                                 InputLabelProps={{ style: { color: "#42373B" } }}
@@ -90,6 +127,7 @@ export default function NoteForm() {
                                     margin: '.5rem 0'
                                 }}
                                 name='description'
+                                value={note.description}
                                 onChange={handleChange}
                                 inputProps={{ style: { color: "#42373B" } }}
                                 InputLabelProps={{ style: { color: "#42373B" } }}
@@ -97,14 +135,14 @@ export default function NoteForm() {
 
                             <Button
                                 variant='contained' color='inherit' type='submit' disabled={!note.title || !note.description}
-                                // Si se está cargando la información el botón se deshabilita
+                            // Si se está cargando la información el botón se deshabilita
                             >
                                 {/* Si está cargando ejecutar la propiedad circularProgress */}
                                 {loading ? (
-                                    <CircularProgress color="secondary" size={12}/>
+                                    <CircularProgress color="secondary" size={12} />
                                 ) : (
                                     // En caso contrario mostar la palabra "Create"
-                                    "Create"
+                                    "Save"
                                 )}
                             </Button>
                         </form>

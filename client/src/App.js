@@ -15,7 +15,7 @@ export default function App() {
           {/* Ruta */}
           <Route path='/' element={<NoteList />} />
           <Route path='/notes/new' element={<NoteForm />} />
-          {/* <Route path='/notees/edit' element... /> */}
+          <Route path='note/:id/edit' element={<NoteForm/>} />
         </Routes>
       </Container>
     </BrowserRouter>
